@@ -1,0 +1,43 @@
+﻿@page "/movies/edit/{MovieId:int}"
+@attribute [Authorize]
+@inject IMoviesRepository moviesRepository
+@inject NavigationManager navigationManager
+
+<h3>Edit Movie</h3>
+
+@if(editingFailed) {
+    <h3>Something went wrong editing movie</h3>
+}
+
+@if (movie != null)
+{
+    <MovieForm Movie="movie" OnValidSubmit="Edit" />
+}
+
+@code {
+    bool editingFailed = false;
+    [Parameter] public int MovieId { get; set; }
+    [Parameter] public List<Movie> Movies { get; set; }
+    public Movie movie;
+
+    protected override async Task OnInitializedAsync()
+    {
+        movie = await moviesRepository.GetDetailsMovie(MovieId);
+    }
+
+    private async void Edit()
+    {
+        try
+        {
+            editingFailed = false;
+            moviesRepository.UpdateMovie(movie);
+            Movies = await moviesRepository.GetMovies();
+            navigationManager.NavigateTo("movies");
+        }
+        catch (Exception e)
+        {
+            editingFailed = true;
+        }
+
+    }
+}

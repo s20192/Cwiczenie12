@@ -1,0 +1,34 @@
+﻿@page "/movies/add"
+@attribute [Authorize]
+@inject IMoviesRepository moviesRepository
+@inject NavigationManager navigationManager
+
+<h3>Create Movie</h3>
+
+@if(addingMovieFailed) {
+    <h3>Something went wrong adding movie</h3>
+}
+
+<MovieForm Movie="movie" OnValidSubmit="Create" />
+
+@code {
+    bool addingMovieFailed = false;
+    private Movie movie = new Movie();
+    [Parameter] public List<Movie> Movies { get; set; }
+
+    private async Task Create()
+    {
+
+        try
+        {
+            addingMovieFailed = false;
+            await moviesRepository.CreateMovie(movie);
+            Movies = await moviesRepository.GetMovies();
+            navigationManager.NavigateTo("movies");
+        }
+        catch (Exception ex)
+        {
+            addingMovieFailed = true;
+        }
+    }
+}

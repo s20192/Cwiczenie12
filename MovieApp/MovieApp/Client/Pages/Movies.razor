@@ -1,0 +1,37 @@
+﻿@page "/movies"
+@attribute [Authorize]
+@inject HttpClient httpClient
+@inject IMoviesRepository moviesRepository
+
+<h3>Movies</h3>
+
+<div>
+    <h3>In theaters</h3>
+    <MoviesList Movies="MoviesList" />
+</div>
+
+@if (getMoviesFailed)
+{
+    <h2>Something went wrong fetching movies</h2>
+}
+
+@code {
+    bool getMoviesFailed = false;
+
+    private List<Movie> MoviesList;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetMovies();
+    }
+
+    private async Task GetMovies()
+    {
+        try {
+            getMoviesFailed = false;
+            MoviesList = await moviesRepository.GetMovies();
+        } catch(Exception e) {
+            getMoviesFailed = true;
+        }
+    }
+}
